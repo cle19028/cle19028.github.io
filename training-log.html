@@ -1,0 +1,454 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Training Log</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Oswald:wght@500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#16140F;
+    --surface:#221F19;
+    --surface-2:#2B271F;
+    --border:#3D372B;
+    --text:#EDE6D6;
+    --text-muted:#9C9484;
+    --accent:#B23A2E;
+    --accent-dim:#7A281F;
+    --gold:#C9A227;
+    --gold-dim:#8C7119;
+    --olive:#6B8552;
+    --radius:10px;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0;
+    background:var(--bg);
+    color:var(--text);
+    font-family:'Inter',sans-serif;
+    padding:2rem 1.25rem 4rem;
+  }
+  .wrap{max-width:720px;margin:0 auto;}
+
+  .tape{
+    height:10px;
+    border-radius:2px;
+    background:repeating-linear-gradient(135deg,var(--accent) 0 14px,var(--accent-dim) 14px 28px);
+    margin:0.9rem 0 1.6rem;
+  }
+
+  header h1{
+    font-family:'Oswald',sans-serif;
+    font-weight:700;
+    text-transform:uppercase;
+    letter-spacing:0.04em;
+    font-size:2rem;
+    margin:0;
+  }
+  header p{
+    color:var(--text-muted);
+    margin:0.25rem 0 0;
+    font-size:0.95rem;
+  }
+
+  .stats{
+    display:grid;
+    grid-template-columns:repeat(3,1fr);
+    gap:10px;
+    margin:1.5rem 0;
+  }
+  .stat{
+    background:var(--surface);
+    border:1px solid var(--border);
+    border-radius:var(--radius);
+    padding:0.85rem 0.9rem;
+  }
+  .stat .num{
+    font-family:'JetBrains Mono',monospace;
+    font-weight:700;
+    font-size:1.5rem;
+    color:var(--gold);
+  }
+  .stat .label{
+    font-size:0.72rem;
+    text-transform:uppercase;
+    letter-spacing:0.06em;
+    color:var(--text-muted);
+    margin-top:2px;
+  }
+
+  .add-btn{
+    width:100%;
+    background:var(--accent);
+    color:#F6E9E5;
+    border:none;
+    border-radius:var(--radius);
+    padding:0.85rem;
+    font-family:'Oswald',sans-serif;
+    font-weight:600;
+    text-transform:uppercase;
+    letter-spacing:0.03em;
+    font-size:0.95rem;
+    cursor:pointer;
+    margin-bottom:1.5rem;
+  }
+  .add-btn:hover{background:#C2453A;}
+  .add-btn:active{transform:scale(0.99);}
+
+  .panel{
+    background:var(--surface);
+    border:1px solid var(--border);
+    border-radius:var(--radius);
+    padding:1.1rem 1.1rem 1.3rem;
+    margin-bottom:1.5rem;
+    display:none;
+  }
+  .panel.open{display:block;}
+  .panel h3{
+    font-family:'Oswald',sans-serif;
+    text-transform:uppercase;
+    letter-spacing:0.03em;
+    font-size:1.05rem;
+    margin:0 0 0.9rem;
+  }
+  .row{display:flex;gap:10px;margin-bottom:0.7rem;flex-wrap:wrap;}
+  .field{flex:1;min-width:120px;display:flex;flex-direction:column;gap:4px;}
+  .field label{font-size:0.72rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.05em;}
+  input,textarea,select{
+    background:var(--surface-2);
+    border:1px solid var(--border);
+    color:var(--text);
+    border-radius:6px;
+    padding:0.5rem 0.6rem;
+    font-family:'Inter',sans-serif;
+    font-size:0.9rem;
+  }
+  input:focus,textarea:focus,select:focus{outline:1px solid var(--gold);}
+  textarea{resize:vertical;min-height:52px;font-family:'Inter',sans-serif;}
+
+  .type-chips{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:0.9rem;}
+  .chip{
+    border:1px solid var(--border);
+    background:var(--surface-2);
+    color:var(--text-muted);
+    padding:0.4rem 0.75rem;
+    border-radius:20px;
+    font-size:0.8rem;
+    cursor:pointer;
+    user-select:none;
+  }
+  .chip.active{background:var(--gold);border-color:var(--gold);color:#2B2107;font-weight:600;}
+
+  .ex-row{
+    display:flex;gap:8px;margin-bottom:6px;align-items:center;
+  }
+  .ex-row input{flex:1;min-width:0;}
+  .ex-row input.num{max-width:64px;flex:none;font-family:'JetBrains Mono',monospace;}
+  .rm{
+    background:none;border:none;color:var(--text-muted);cursor:pointer;font-size:1.1rem;padding:2px 6px;
+  }
+  .rm:hover{color:var(--accent);}
+
+  .small-btn{
+    background:var(--surface-2);
+    border:1px solid var(--border);
+    color:var(--text);
+    border-radius:6px;
+    padding:0.4rem 0.7rem;
+    font-size:0.8rem;
+    cursor:pointer;
+    margin-top:4px;
+  }
+  .small-btn:hover{border-color:var(--gold);}
+
+  .save-row{display:flex;gap:10px;margin-top:1rem;}
+  .save-row button{flex:1;padding:0.65rem;border-radius:6px;border:none;font-weight:600;cursor:pointer;font-family:'Inter',sans-serif;}
+  .save-btn{background:var(--olive);color:#EAF0E3;}
+  .cancel-btn{background:transparent;border:1px solid var(--border) !important;color:var(--text-muted);}
+
+  .entries{display:flex;flex-direction:column;gap:12px;}
+  .entry{
+    background:var(--surface);
+    border:1px solid var(--border);
+    border-left:4px solid var(--gold);
+    border-radius:var(--radius);
+    padding:0.9rem 1rem;
+  }
+  .entry-head{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:0.5rem;}
+  .entry-date{font-family:'Oswald',sans-serif;font-weight:600;font-size:1rem;text-transform:uppercase;letter-spacing:0.03em;}
+  .entry-badges{display:flex;gap:6px;margin-top:4px;flex-wrap:wrap;}
+  .badge{
+    font-size:0.68rem;text-transform:uppercase;letter-spacing:0.04em;
+    padding:2px 8px;border-radius:10px;border:1px solid var(--border);color:var(--text-muted);
+  }
+  .badge.bw{color:var(--gold);border-color:var(--gold-dim);}
+  .del{background:none;border:none;color:var(--text-muted);cursor:pointer;font-size:0.95rem;}
+  .del:hover{color:var(--accent);}
+
+  table.ex-table{width:100%;border-collapse:collapse;margin-top:6px;font-family:'JetBrains Mono',monospace;font-size:0.85rem;}
+  table.ex-table td{padding:3px 0;border-bottom:1px solid var(--border);}
+  table.ex-table td:first-child{font-family:'Inter',sans-serif;color:var(--text);}
+  table.ex-table td:not(:first-child){text-align:right;color:var(--text-muted);}
+
+  .note-block{margin-top:8px;font-size:0.88rem;color:var(--text-muted);white-space:pre-wrap;}
+  .note-label{color:var(--gold);font-size:0.72rem;text-transform:uppercase;letter-spacing:0.05em;margin-right:6px;}
+
+  .empty{
+    text-align:center;color:var(--text-muted);padding:3rem 1rem;border:1px dashed var(--border);border-radius:var(--radius);
+  }
+  .loading{text-align:center;color:var(--text-muted);padding:2rem;}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1>Training Log</h1>
+    <p>Off-season day-by-day tracker</p>
+  </header>
+  <div class="tape"></div>
+
+  <div class="stats">
+    <div class="stat"><div class="num" id="stat-sessions">0</div><div class="label">Sessions</div></div>
+    <div class="stat"><div class="num" id="stat-streak">0</div><div class="label">Day streak</div></div>
+    <div class="stat"><div class="num" id="stat-bw">–</div><div class="label">Last bodyweight</div></div>
+  </div>
+
+  <button class="add-btn" id="toggle-form">+ Log today's session</button>
+
+  <div class="panel" id="form-panel">
+    <h3>New entry</h3>
+    <div class="row">
+      <div class="field">
+        <label>Date</label>
+        <input type="date" id="f-date">
+      </div>
+      <div class="field">
+        <label>Bodyweight (lb)</label>
+        <input type="number" id="f-bw" placeholder="152" step="0.1">
+      </div>
+    </div>
+
+    <label style="font-size:0.72rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.05em;">Type</label>
+    <div class="type-chips" id="type-chips">
+      <div class="chip" data-type="Lift">Lift</div>
+      <div class="chip" data-type="Conditioning">Conditioning</div>
+      <div class="chip" data-type="Mat">Mat / Live</div>
+      <div class="chip" data-type="Rest">Rest</div>
+    </div>
+
+    <label style="font-size:0.72rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.05em;">Exercises</label>
+    <div id="ex-rows"></div>
+    <button class="small-btn" id="add-ex">+ Add exercise</button>
+
+    <div class="field" style="margin-top:0.8rem;">
+      <label>Conditioning / mat notes</label>
+      <textarea id="f-cond" placeholder="e.g. 20/10 bike intervals x8, sprawl circuit..."></textarea>
+    </div>
+    <div class="field" style="margin-top:0.6rem;">
+      <label>General notes</label>
+      <textarea id="f-notes" placeholder="How you felt, soreness, sleep, anything worth remembering"></textarea>
+    </div>
+
+    <div class="save-row">
+      <button class="cancel-btn" id="cancel-entry">Cancel</button>
+      <button class="save-btn" id="save-entry">Save entry</button>
+    </div>
+  </div>
+
+  <div id="entries" class="entries">
+    <div class="loading">Loading log…</div>
+  </div>
+</div>
+
+<script>
+const STORAGE_KEY = 'wrestling-log-entries';
+let entries = [];
+let selectedType = 'Lift';
+let exCounter = 0;
+
+function todayStr(){
+  const d = new Date();
+  return d.toISOString().slice(0,10);
+}
+
+function formatDate(dstr){
+  const d = new Date(dstr + 'T00:00:00');
+  return d.toLocaleDateString('en-US', {weekday:'short', month:'short', day:'numeric'});
+}
+
+function addExRow(name, sets, reps, weight){
+  exCounter++;
+  const id = 'ex-' + exCounter;
+  const div = document.createElement('div');
+  div.className = 'ex-row';
+  div.id = id;
+  div.innerHTML = `
+    <input type="text" placeholder="Exercise (e.g. Back Squat)" class="ex-name" value="${name||''}">
+    <input type="text" placeholder="Sets" class="num ex-sets" value="${sets||''}">
+    <input type="text" placeholder="Reps" class="num ex-reps" value="${reps||''}">
+    <input type="text" placeholder="Wt" class="num ex-weight" value="${weight||''}">
+    <button class="rm" onclick="document.getElementById('${id}').remove()">×</button>
+  `;
+  document.getElementById('ex-rows').appendChild(div);
+}
+
+document.getElementById('add-ex').addEventListener('click', () => addExRow());
+
+document.getElementById('toggle-form').addEventListener('click', () => {
+  const panel = document.getElementById('form-panel');
+  panel.classList.add('open');
+  document.getElementById('f-date').value = todayStr();
+  document.getElementById('toggle-form').style.display = 'none';
+});
+
+document.getElementById('cancel-entry').addEventListener('click', closeForm);
+
+function closeForm(){
+  document.getElementById('form-panel').classList.remove('open');
+  document.getElementById('toggle-form').style.display = 'block';
+  document.getElementById('ex-rows').innerHTML = '';
+  document.getElementById('f-bw').value = '';
+  document.getElementById('f-cond').value = '';
+  document.getElementById('f-notes').value = '';
+  document.querySelectorAll('.chip').forEach(c => c.classList.remove('active'));
+  selectedType = 'Lift';
+  document.querySelector('.chip[data-type="Lift"]').classList.add('active');
+}
+
+document.querySelectorAll('.chip').forEach(chip => {
+  chip.addEventListener('click', () => {
+    document.querySelectorAll('.chip').forEach(c => c.classList.remove('active'));
+    chip.classList.add('active');
+    selectedType = chip.dataset.type;
+  });
+});
+document.querySelector('.chip[data-type="Lift"]').classList.add('active');
+
+async function loadEntries(){
+  try{
+    const res = await window.storage.get(STORAGE_KEY, false);
+    entries = res && res.value ? JSON.parse(res.value) : [];
+  }catch(e){
+    entries = [];
+  }
+  render();
+}
+
+async function saveEntries(){
+  try{
+    await window.storage.set(STORAGE_KEY, JSON.stringify(entries), false);
+  }catch(e){
+    console.error('Storage error', e);
+  }
+}
+
+document.getElementById('save-entry').addEventListener('click', async () => {
+  const date = document.getElementById('f-date').value || todayStr();
+  const bw = document.getElementById('f-bw').value;
+  const cond = document.getElementById('f-cond').value.trim();
+  const notes = document.getElementById('f-notes').value.trim();
+  const exercises = [];
+  document.querySelectorAll('.ex-row').forEach(row => {
+    const name = row.querySelector('.ex-name').value.trim();
+    const sets = row.querySelector('.ex-sets').value.trim();
+    const reps = row.querySelector('.ex-reps').value.trim();
+    const weight = row.querySelector('.ex-weight').value.trim();
+    if(name) exercises.push({name, sets, reps, weight});
+  });
+
+  const entry = {
+    id: Date.now().toString(36),
+    date, type: selectedType,
+    bodyweight: bw ? parseFloat(bw) : null,
+    exercises, conditioning: cond, notes
+  };
+
+  entries.push(entry);
+  entries.sort((a,b) => b.date.localeCompare(a.date));
+  await saveEntries();
+  closeForm();
+  render();
+});
+
+async function deleteEntry(id){
+  entries = entries.filter(e => e.id !== id);
+  await saveEntries();
+  render();
+}
+
+function computeStreak(){
+  const days = new Set(entries.map(e => e.date));
+  let streak = 0;
+  let d = new Date();
+  // if no entry today, still check backward from yesterday
+  if(!days.has(todayStr())){
+    d.setDate(d.getDate()-1);
+  }
+  while(true){
+    const ds = d.toISOString().slice(0,10);
+    if(days.has(ds)){
+      streak++;
+      d.setDate(d.getDate()-1);
+    } else break;
+  }
+  return streak;
+}
+
+function render(){
+  document.getElementById('stat-sessions').textContent = entries.length;
+  document.getElementById('stat-streak').textContent = computeStreak();
+  const lastBw = entries.find(e => e.bodyweight);
+  document.getElementById('stat-bw').textContent = lastBw ? lastBw.bodyweight + ' lb' : '–';
+
+  const container = document.getElementById('entries');
+  if(entries.length === 0){
+    container.innerHTML = '<div class="empty">No sessions logged yet. Tap the button above to add your first day.</div>';
+    return;
+  }
+
+  container.innerHTML = '';
+  entries.forEach(e => {
+    const div = document.createElement('div');
+    div.className = 'entry';
+    let badges = `<span class="badge">${e.type}</span>`;
+    if(e.bodyweight) badges += `<span class="badge bw">${e.bodyweight} lb</span>`;
+
+    let exTable = '';
+    if(e.exercises && e.exercises.length){
+      exTable = '<table class="ex-table">' + e.exercises.map(ex =>
+        `<tr><td>${ex.name}</td><td>${ex.sets||''} sets</td><td>${ex.reps||''} reps</td><td>${ex.weight ? ex.weight+' lb':''}</td></tr>`
+      ).join('') + '</table>';
+    }
+
+    let condBlock = e.conditioning ? `<div class="note-block"><span class="note-label">Conditioning</span>${escapeHtml(e.conditioning)}</div>` : '';
+    let notesBlock = e.notes ? `<div class="note-block"><span class="note-label">Notes</span>${escapeHtml(e.notes)}</div>` : '';
+
+    div.innerHTML = `
+      <div class="entry-head">
+        <div>
+          <div class="entry-date">${formatDate(e.date)}</div>
+          <div class="entry-badges">${badges}</div>
+        </div>
+        <button class="del" aria-label="Delete entry">✕</button>
+      </div>
+      ${exTable}
+      ${condBlock}
+      ${notesBlock}
+    `;
+    div.querySelector('.del').addEventListener('click', () => deleteEntry(e.id));
+    container.appendChild(div);
+  });
+}
+
+function escapeHtml(str){
+  const d = document.createElement('div');
+  d.textContent = str;
+  return d.innerHTML;
+}
+
+loadEntries();
+</script>
+</body>
+</html>
